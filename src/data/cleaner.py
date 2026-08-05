@@ -1,5 +1,5 @@
 """
-Data cleaning module.
+cleaner.py
 
 Responsible for cleaning raw football datasets before feature engineering.
 """
@@ -11,6 +11,15 @@ import pandas as pd
 
 class SoccerDataCleaner:
     """Clean and prepare football datasets."""
+
+    def clean(self, df: pd.DataFrame) -> pd.DataFrame:
+        """
+        Default cleaning method.
+
+        Currently assumes the dataframe is Player_Attributes.
+        This becomes the standard interface used by the pipeline.
+        """
+        return self.clean_player_attributes(df)
 
     def clean_player_attributes(self, df: pd.DataFrame) -> pd.DataFrame:
         """

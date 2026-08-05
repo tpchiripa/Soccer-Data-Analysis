@@ -10,7 +10,9 @@ import pandas as pd
 
 
 class SoccerDataLoader:
-    """Loads tables from the European Soccer Database."""
+    """
+    Loads data from the European Soccer SQLite database.
+    """
 
     def __init__(self, db_path: str):
         self.db_path = Path(db_path)
@@ -21,17 +23,30 @@ class SoccerDataLoader:
             )
 
     def connect(self):
-        """Create SQLite connection."""
+        """Create and return a SQLite connection."""
         return sqlite3.connect(self.db_path)
 
     def load_table(self, table_name: str) -> pd.DataFrame:
-        """Load any table into a pandas DataFrame."""
+        """
+        Load any table from the database.
+
+        Parameters
+        ----------
+        table_name : str
+            Name of the SQLite table.
+
+        Returns
+        -------
+        pandas.DataFrame
+        """
         with self.connect() as conn:
             query = f"SELECT * FROM {table_name}"
             return pd.read_sql(query, conn)
 
     def available_tables(self):
-        """Return list of database tables."""
+        """
+        Return all available tables in the database.
+        """
         with self.connect() as conn:
             query = """
             SELECT name
@@ -40,3 +55,35 @@ class SoccerDataLoader:
             ORDER BY name;
             """
             return pd.read_sql(query, conn)
+
+    # ======================================================
+    # Convenience Methods
+    # ======================================================
+
+    def load_player_attributes(self):
+        """Load the Player_Attributes table."""
+        return self.load_table("Player_Attributes")
+
+    def load_players(self):
+        """Load the Player table."""
+        return self.load_table("Player")
+
+    def load_matches(self):
+        """Load the Match table."""
+        return self.load_table("Match")
+
+    def load_teams(self):
+        """Load the Team table."""
+        return self.load_table("Team")
+
+    def load_team_attributes(self):
+        """Load the Team_Attributes table."""
+        return self.load_table("Team_Attributes")
+
+    def load_leagues(self):
+        """Load the League table."""
+        return self.load_table("League")
+
+    def load_countries(self):
+        """Load the Country table."""
+        return self.load_table("Country")
