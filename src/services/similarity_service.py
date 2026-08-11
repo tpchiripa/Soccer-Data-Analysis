@@ -17,19 +17,25 @@ class SimilarityService:
     Business service for player similarity.
     """
 
-    def __init__(self, db_path: str):
+    def __init__(self, player_service: PlayerService):
 
         print("Initializing Similarity Service...")
 
-        self.player_service = PlayerService(db_path)
+        self.player_service = player_service
 
-        self.players = self.player_service.get_players()
+        # Shared player dataset
+        self.players = self.player_service.dataset()
 
-        self.X = self.player_service.get_feature_matrix()
+        # Shared feature matrix
+        self.X = self.player_service.features()
 
+        # Train similarity model
         self.model = PlayerSimilarity(n_neighbors=6)
 
-        self.model.fit(self.X, self.players)
+        self.model.fit(
+            self.X,
+            self.players
+        )
 
         print("Similarity model ready.")
 
@@ -37,41 +43,33 @@ class SimilarityService:
     # Find Similar Players
     # ---------------------------------------------------------
 
-    def similar_players(self, player_name: str, top_n: int = 5):
-
+    def similar_players(
+        self,
+        player_name: str,
+        top_n: int = 5
+    ) -> pd.DataFrame:
         """
         Find players with similar attributes.
-
-        Parameters
-        ----------
-        player_name : str
-            Player to search.
-
-        top_n : int
-            Number of similar players to return.
-
-        Returns
-        -------
-        pandas.DataFrame
         """
 
         results = self.model.find_similar(player_name)
 
-        # Remove the queried player
+        # Remove queried player
         results = results[
-            results["player_name"].str.lower() != player_name.lower()
-        ]
-
-        columns = [
-            "player_api_id",
-            "player_name",
-            "overall_rating",
-            "potential",
-            "distance"
+            results["player_name"].str.lower()
+            != player_name.lower()
         ]
 
         return (
-            results[columns]
+            results[
+                [
+                    "player_api_id",
+                    "player_name",
+                    "overall_rating",
+                    "potential",
+                    "distance",
+                ]
+            ]
             .sort_values("distance")
             .head(top_n)
             .reset_index(drop=True)
@@ -82,25 +80,37 @@ class SimilarityService:
     # ---------------------------------------------------------
 
     def player_exists(self, player_name: str) -> bool:
+        """
+        Check whether a player exists.
+        """
 
         return not self.player_service.search(player_name).empty
 
     # ---------------------------------------------------------
-    # Search then Recommend
+    # Recommend Similar Players
     # ---------------------------------------------------------
 
-    def recommend(self, player_name: str):
+    def recommend(
+        self,
+        player_name: str,
+        top_n: int = 5
+    ) -> pd.DataFrame:
+        """
+        Recommend similar players.
+        """
 
         if not self.player_exists(player_name):
-
             raise ValueError(
                 f"Player '{player_name}' was not found."
             )
 
-        return self.similar_players(player_name)
+        return self.similar_players(
+            player_name,
+            top_n
+        )
 
     # ---------------------------------------------------------
-    # Service Summary
+    # Summary
     # ---------------------------------------------------------
 
     def summary(self):
@@ -108,7 +118,7 @@ class SimilarityService:
         print("=" * 60)
         print("SIMILARITY SERVICE")
         print("=" * 60)
-
         print(f"Players Loaded : {self.player_service.count():,}")
         print(f"Features       : {self.X.shape[1]}")
         print(f"Observations   : {self.X.shape[0]:,}")
+        print("=" * 60)

@@ -1,5 +1,5 @@
 from src.services.player_service import PlayerService
-from src.services.similarity_service import SimilarityService
+from src.services.profile_service import PlayerProfileService
 
 # ---------------------------------------------------------
 # Shared Player Service
@@ -10,10 +10,10 @@ player_service = PlayerService(
 )
 
 # ---------------------------------------------------------
-# Similarity Service
+# Profile Service
 # ---------------------------------------------------------
 
-service = SimilarityService(
+service = PlayerProfileService(
     player_service
 )
 
@@ -21,21 +21,9 @@ service.summary()
 
 print()
 
-print("=" * 60)
-print("PLAYERS SIMILAR TO LIONEL MESSI")
-print("=" * 60)
-print(service.recommend("Lionel Messi"))
-
-print()
+profile = service.get_profile("Lionel Messi")
 
 print("=" * 60)
-print("PLAYERS SIMILAR TO CRISTIANO RONALDO")
+print("PLAYER PROFILE")
 print("=" * 60)
-print(service.recommend("Cristiano Ronaldo"))
-
-print()
-
-print("=" * 60)
-print("PLAYERS SIMILAR TO NEYMAR")
-print("=" * 60)
-print(service.recommend("Neymar"))
+print(profile)

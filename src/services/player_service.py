@@ -1,7 +1,7 @@
 """
 player_service.py
 
-Provides player search, lookup and feature access services
+Provides player search, retrieval and feature access services
 for FootballIQ.
 """
 
@@ -16,8 +16,8 @@ from src.data.features import FeatureEngineer
 
 class PlayerService:
     """
-    Service responsible for player retrieval,
-    searching and feature preparation.
+    Core service responsible for loading, searching and
+    retrieving player information throughout FootballIQ.
     """
 
     def __init__(self, db_path: str):
@@ -49,7 +49,7 @@ class PlayerService:
             self.attributes
         )
 
-        # Keep only the latest record for each player
+        # Keep only latest record per player
         self.attributes = (
             self.attributes
             .sort_values("date")
@@ -57,20 +57,26 @@ class PlayerService:
             .tail(1)
         )
 
-        # Merge player names with latest attributes
-        self.players = self.players.merge(
-            self.attributes,
-            on="player_api_id",
-            how="inner"
+        # Merge player information
+        self.players = (
+            self.players.merge(
+                self.attributes,
+                on="player_api_id",
+                how="inner"
+            )
+            .reset_index(drop=True)
         )
 
         print(f"Loaded {len(self.players):,} players.")
 
     # ---------------------------------------------------------
-    # Search Players
+    # Search
     # ---------------------------------------------------------
 
     def search(self, name: str) -> pd.DataFrame:
+        """
+        Search players by name.
+        """
 
         matches = self.players[
             self.players["player_name"]
@@ -83,21 +89,24 @@ class PlayerService:
                     "player_api_id",
                     "player_name",
                     "overall_rating",
-                    "potential"
+                    "potential",
                 ]
             ]
             .sort_values(
                 "overall_rating",
-                ascending=False
+                ascending=False,
             )
             .reset_index(drop=True)
         )
 
     # ---------------------------------------------------------
-    # Get Player by API ID
+    # Get Player
     # ---------------------------------------------------------
 
-    def get_player(self, player_api_id: int):
+    def get(self, player_api_id: int):
+        """
+        Retrieve one player by API ID.
+        """
 
         player = self.players[
             self.players["player_api_id"] == player_api_id
@@ -109,12 +118,15 @@ class PlayerService:
         return player.iloc[0]
 
     # ---------------------------------------------------------
-    # Get Player Profile
+    # Player Profile
     # ---------------------------------------------------------
 
     def player_profile(self, player_api_id: int):
+        """
+        Return a lightweight player profile dictionary.
+        """
 
-        player = self.get_player(player_api_id)
+        player = self.get(player_api_id)
 
         if player is None:
             return None
@@ -125,63 +137,108 @@ class PlayerService:
             "overall_rating": float(player["overall_rating"]),
             "potential": float(player["potential"]),
             "preferred_foot": player.get("preferred_foot"),
-            "height": player.get("height"),
-            "weight": player.get("weight"),
+            "height": int(player["height"]),
+            "weight": int(player["weight"]),
             "birthday": player.get("birthday"),
         }
 
     # ---------------------------------------------------------
-    # Top Rated Players
+    # Top Players
     # ---------------------------------------------------------
 
-    def top_players(self, n: int = 20):
+    def top(self, limit: int = 20) -> pd.DataFrame:
+        """
+        Return the highest-rated players.
+        """
 
         return (
             self.players[
                 [
                     "player_name",
                     "overall_rating",
-                    "potential"
+                    "potential",
                 ]
             ]
             .sort_values(
                 "overall_rating",
-                ascending=False
+                ascending=False,
             )
-            .head(n)
+            .head(limit)
             .reset_index(drop=True)
         )
 
     # ---------------------------------------------------------
-    # Number of Players
+    # Dataset
     # ---------------------------------------------------------
 
-    def count(self):
-
-        return len(self.players)
-
-    # ---------------------------------------------------------
-    # Return Full Dataset
-    # ---------------------------------------------------------
-
-    def get_players(self):
-
+    def dataset(self) -> pd.DataFrame:
         """
-        Returns the merged player dataframe.
+        Return the merged player dataset.
         """
 
         return self.players.copy()
 
     # ---------------------------------------------------------
-    # Return Feature Matrix
+    # Feature Matrix
     # ---------------------------------------------------------
 
-    def get_feature_matrix(self):
-
+    def features(self):
         """
-        Returns the scaled machine learning feature matrix.
+        Return the machine-learning feature matrix.
         """
 
         return self.engineer.prepare_features(
             self.players
         )
+
+    # ---------------------------------------------------------
+    # Count
+    # ---------------------------------------------------------
+
+    def count(self) -> int:
+        """
+        Number of loaded players.
+        """
+
+        return len(self.players)
+
+    # ---------------------------------------------------------
+    # Summary
+    # ---------------------------------------------------------
+
+    def summary(self):
+
+        print("=" * 60)
+        print("PLAYER SERVICE")
+        print("=" * 60)
+        print(f"Players Loaded : {self.count():,}")
+        print(f"Columns        : {len(self.players.columns)}")
+        print("=" * 60)
+
+    # =========================================================
+    # Backward Compatibility
+    # =========================================================
+
+    def get_player(self, player_api_id: int):
+        """
+        Alias for get().
+        """
+        return self.get(player_api_id)
+
+    def top_players(self, n: int = 20):
+        """
+        Alias for top().
+        """
+        return self.top(n)
+
+    def get_players(self):
+        """
+        Alias for dataset().
+        """
+        return self.dataset()
+
+    def get_feature_matrix(self):
+        """
+        Alias for features().
+        """
+        return self.features()
