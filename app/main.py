@@ -10,6 +10,7 @@ from app.routers.similarity import router as similarity_router
 from app.routers.comparison import router as comparison_router
 from app.routers.scouting import router as scouting_router
 from app.routers.dashboard import router as dashboard_router
+from app.routers.watchlist import router as watchlist_router
 
 app = FastAPI(
     title="FootballIQ API",
@@ -39,6 +40,7 @@ app.include_router(similarity_router)
 app.include_router(comparison_router)
 app.include_router(scouting_router)
 app.include_router(dashboard_router)
+app.include_router(watchlist_router)
 
 
 @app.get("/")

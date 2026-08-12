@@ -12,6 +12,7 @@ from src.services.profile_service import PlayerProfileService
 from src.services.similarity_service import SimilarityService
 from src.services.comparison_service import ComparisonService
 from src.services.scouting_service import ScoutingService
+from src.services.watchlist_service import WatchlistService
 
 
 # ============================================================
@@ -46,4 +47,9 @@ comparison_service = ComparisonService(
 
 scouting_service = ScoutingService(
     player_service
+)
+
+watchlist_service = WatchlistService(
+    player_service,
+    DB_PATH
 )

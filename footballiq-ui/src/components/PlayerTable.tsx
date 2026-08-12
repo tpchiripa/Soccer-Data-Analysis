@@ -1,4 +1,5 @@
 import type { Player } from "../types/Player";
+import api from "../api/api";
 
 interface PlayerTableProps {
   players: Player[];
@@ -13,6 +14,14 @@ export default function PlayerTable({ players }: PlayerTableProps) {
     );
   }
 
+  async function addToWatchlist(playerApiId: number) {
+    try {
+      await api.post(`/watchlist/${playerApiId}`);
+    } catch (err) {
+      console.error("Failed to add to watchlist:", err);
+    }
+  }
+
   return (
     <table className="w-full text-left text-sm text-slate-300">
       <thead>
@@ -23,6 +32,7 @@ export default function PlayerTable({ players }: PlayerTableProps) {
           <th className="py-2 pr-4">Position</th>
           <th className="py-2 pr-4">Nationality</th>
           <th className="py-2 pr-4">Age</th>
+          <th className="py-2 pr-4"></th>
         </tr>
       </thead>
       <tbody>
@@ -39,6 +49,14 @@ export default function PlayerTable({ players }: PlayerTableProps) {
             <td className="py-2 pr-4">{player.preferred_position ?? "N/A"}</td>
             <td className="py-2 pr-4">{player.nationality ?? "N/A"}</td>
             <td className="py-2 pr-4">{player.age ?? "N/A"}</td>
+            <td className="py-2 pr-4">
+              <button
+                onClick={() => addToWatchlist(player.player_api_id)}
+                className="text-blue-400 hover:text-blue-300 text-xs"
+              >
+                + Watchlist
+              </button>
+            </td>
           </tr>
         ))}
       </tbody>

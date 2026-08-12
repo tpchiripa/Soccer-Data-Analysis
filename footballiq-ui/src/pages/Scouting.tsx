@@ -2,6 +2,7 @@ import { useState } from "react";
 import api from "../api/api";
 
 interface ScoutResult {
+  player_api_id: number;
   player_name: string;
   overall_rating: number;
   potential: number;
@@ -37,6 +38,14 @@ export default function Scouting() {
       setResults([]);
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function addToWatchlist(playerApiId: number) {
+    try {
+      await api.post(`/watchlist/${playerApiId}`);
+    } catch (err) {
+      console.error("Failed to add to watchlist:", err);
     }
   }
 
@@ -115,12 +124,13 @@ export default function Scouting() {
                 <th className="py-2 pr-4">Foot</th>
                 <th className="py-2 pr-4">Height</th>
                 <th className="py-2 pr-4">Weight</th>
+                <th className="py-2 pr-4"></th>
               </tr>
             </thead>
             <tbody>
-              {results.map((player, i) => (
+              {results.map((player) => (
                 <tr
-                  key={i}
+                  key={player.player_api_id}
                   className="border-b border-slate-800 hover:bg-slate-800/50"
                 >
                   <td className="py-2 pr-4 font-medium text-white">
@@ -131,6 +141,14 @@ export default function Scouting() {
                   <td className="py-2 pr-4">{player.preferred_foot}</td>
                   <td className="py-2 pr-4">{player.height} cm</td>
                   <td className="py-2 pr-4">{player.weight} kg</td>
+                  <td className="py-2 pr-4">
+                    <button
+                      onClick={() => addToWatchlist(player.player_api_id)}
+                      className="text-blue-400 hover:text-blue-300 text-xs"
+                    >
+                      + Watchlist
+                    </button>
+                  </td>
                 </tr>
               ))}
             </tbody>

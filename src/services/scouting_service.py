@@ -71,6 +71,7 @@ class ScoutingService:
         return (
             df[
                 [
+                    "player_api_id",
                     "player_name",
                     "overall_rating",
                     "potential",

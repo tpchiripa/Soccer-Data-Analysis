@@ -4,8 +4,8 @@ import {
   Search,
   GitCompare,
   BrainCircuit,
+  Star,
 } from "lucide-react";
-
 import { NavLink } from "react-router-dom";
 
 const menu = [
@@ -34,20 +34,20 @@ const menu = [
     label: "Comparison",
     path: "/comparison",
   },
+  {
+    icon: Star,
+    label: "Watchlist",
+    path: "/watchlist",
+  },
 ];
 
 export default function Sidebar() {
   return (
     <aside className="w-64 min-h-screen bg-slate-950 text-white p-6">
-
-      <h1 className="text-2xl font-bold mb-10">
-        ⚽ FootballIQ
-      </h1>
-
+      <h1 className="text-2xl font-bold mb-10">FootballIQ</h1>
       <nav className="space-y-3">
         {menu.map((item) => {
           const Icon = item.icon;
-
           return (
             <NavLink
               key={item.label}
@@ -67,7 +67,6 @@ export default function Sidebar() {
           );
         })}
       </nav>
-
     </aside>
   );
 }
