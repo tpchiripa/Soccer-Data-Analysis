@@ -1,6 +1,5 @@
 """
 cleaner.py
-
 Responsible for cleaning raw football datasets before feature engineering.
 """
 
@@ -15,7 +14,6 @@ class SoccerDataCleaner:
     def clean(self, df: pd.DataFrame) -> pd.DataFrame:
         """
         Default cleaning method.
-
         Currently assumes the dataframe is Player_Attributes.
         This becomes the standard interface used by the pipeline.
         """
@@ -25,7 +23,6 @@ class SoccerDataCleaner:
         """
         Clean the Player_Attributes table.
         """
-
         df = df.copy()
 
         # Remove duplicate records
@@ -41,13 +38,11 @@ class SoccerDataCleaner:
 
         # Fill numeric columns using median
         numeric_cols = df.select_dtypes(include="number").columns
-
         for column in numeric_cols:
             df[column] = df[column].fillna(df[column].median())
 
         # Fill categorical columns using mode
         categorical_cols = df.select_dtypes(include="object").columns
-
         for column in categorical_cols:
             if not df[column].mode().empty:
                 df[column] = df[column].fillna(df[column].mode()[0])
@@ -58,9 +53,12 @@ class SoccerDataCleaner:
         """
         Clean Player table.
         """
-
         df = df.copy()
-
         df = df.drop_duplicates()
+
+        # The source data stores weight in pounds. Convert to kg so it's
+        # consistent with height (cm) and safe to compare/display directly.
+        if "weight" in df.columns:
+            df["weight"] = (df["weight"] * 0.453592).round(1)
 
         return df

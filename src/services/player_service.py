@@ -40,6 +40,7 @@ class PlayerService:
         print("Loading players...")
 
         self.players = self.loader.load_players()
+        self.players = self.cleaner.clean_players(self.players)
 
         print("Loading player attributes...")
 
@@ -81,7 +82,12 @@ class PlayerService:
         matches = self.players[
             self.players["player_name"]
             .str.contains(name, case=False, na=False)
-        ]
+        ].copy()
+
+        matches["age"] = (
+            (pd.Timestamp.now() - pd.to_datetime(matches["birthday"]))
+            .dt.days // 365
+        )
 
         return (
             matches[
@@ -90,6 +96,7 @@ class PlayerService:
                     "player_name",
                     "overall_rating",
                     "potential",
+                    "age",
                 ]
             ]
             .sort_values(

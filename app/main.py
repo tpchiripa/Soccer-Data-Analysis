@@ -1,8 +1,8 @@
 """
 FootballIQ API
 """
-
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 from app.routers.players import router as players_router
 from app.routers.profile import router as profile_router
@@ -15,6 +15,21 @@ app = FastAPI(
     title="FootballIQ API",
     description="Football Analytics Platform powered by Machine Learning",
     version="1.0.0",
+)
+
+# Allow the Vite dev server to call this API.
+# Add your deployed frontend's URL here too once you have one.
+origins = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 # Register API Routers
