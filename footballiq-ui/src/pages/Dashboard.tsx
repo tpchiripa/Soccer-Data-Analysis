@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../api/api";
 import DashboardCard from "../components/DashboardCard";
 import SearchBox from "../components/SearchBox";
@@ -15,8 +16,13 @@ interface DashboardStats {
 
 export default function Dashboard() {
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+
+  function handleQuickSearch(query: string) {
+    navigate(`/players?search=${encodeURIComponent(query)}`);
+  }
 
   useEffect(() => {
     api
@@ -78,7 +84,7 @@ export default function Dashboard() {
         <h3 className="text-lg font-semibold text-white mb-4">
           Quick Search
         </h3>
-        <SearchBox />
+        <SearchBox onSearch={handleQuickSearch} />
       </div>
     </div>
   );
