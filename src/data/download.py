@@ -14,7 +14,7 @@ import requests
 
 DATABASE_URL = (
     "https://github.com/tpchiripa/Soccer-Data-Analysis/"
-    "releases/download/data-v1/database.sqlite"
+    "releases/download/data-v2-demo/database_demo.sqlite"
 )
 
 
