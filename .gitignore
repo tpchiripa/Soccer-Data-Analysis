@@ -17,7 +17,7 @@ data/processed/
 data/external/
 
 # Models
-models/
+/models/
 *.pkl
 
 # OS files
