@@ -11,6 +11,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+from src.data.download import ensure_database_exists
 from src.services.player_service import PlayerService
 from src.services.profile_service import PlayerProfileService
 from src.services.similarity_service import SimilarityService
@@ -25,6 +26,8 @@ from src.services.auth_service import AuthService
 # ============================================================
 
 DB_PATH = "data/raw/database.sqlite"
+
+ensure_database_exists(DB_PATH)
 
 
 # ============================================================
