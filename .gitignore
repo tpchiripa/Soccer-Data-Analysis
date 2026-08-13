@@ -13,6 +13,7 @@ __pycache__/
 
 # Data
 data/raw/database.sqlite
+data/raw/database_demo.sqlite
 data/processed/
 data/external/
 
