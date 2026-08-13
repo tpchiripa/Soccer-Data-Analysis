@@ -7,12 +7,17 @@ This module creates and exposes the application's core services
 using a consistent dependency chain.
 """
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 from src.services.player_service import PlayerService
 from src.services.profile_service import PlayerProfileService
 from src.services.similarity_service import SimilarityService
 from src.services.comparison_service import ComparisonService
 from src.services.scouting_service import ScoutingService
 from src.services.watchlist_service import WatchlistService
+from src.services.auth_service import AuthService
 
 
 # ============================================================
@@ -51,5 +56,9 @@ scouting_service = ScoutingService(
 
 watchlist_service = WatchlistService(
     player_service,
+    DB_PATH
+)
+
+auth_service = AuthService(
     DB_PATH
 )

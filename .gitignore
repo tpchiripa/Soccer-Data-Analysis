@@ -23,3 +23,7 @@ models/
 # OS files
 Thumbs.db
 .DS_Store
+
+# Environment variables
+.env
+.env.local

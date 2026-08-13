@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
-
 import api from "../api/api";
-
-import Sidebar from "../components/Sidebar";
-import Header from "../components/Header";
 import DashboardCard from "../components/DashboardCard";
 import SearchBox from "../components/SearchBox";
+import { useAuth } from "../context/AuthContext";
+
+interface DashboardStats {
+  players: number;
+  watchlist_count: number;
+  top_player: {
+    player_name: string;
+    overall_rating: number;
+  } | null;
+}
 
 export default function Dashboard() {
-  const [stats, setStats] = useState({
-    players: 0,
-    similarity_engine: "",
-    api_status: "",
-  });
+  const { user } = useAuth();
+  const [stats, setStats] = useState<DashboardStats | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     api
@@ -22,48 +26,59 @@ export default function Dashboard() {
       })
       .catch((error) => {
         console.error("Failed to load dashboard statistics:", error);
+      })
+      .finally(() => {
+        setLoading(false);
       });
   }, []);
 
   return (
-    <div className="flex min-h-screen bg-slate-900">
-      <Sidebar />
+    <div>
+      <h1 className="text-3xl font-bold text-white">
+        Welcome back, {user?.email?.split("@")[0] ?? "Admin"}
+      </h1>
+      <p className="mt-2 text-slate-400">
+        Here's what's happening across FootballIQ.
+      </p>
 
-      <div className="flex-1">
-        <Header />
-
-        <main className="p-8">
-          <h1 className="text-4xl font-bold text-white">
-            FootballIQ Dashboard
-          </h1>
-
-          <p className="mt-2 text-slate-400">
-            Enterprise Football Analytics Platform
-          </p>
-
-          <div className="grid grid-cols-1 gap-6 mt-10 md:grid-cols-3">
-            <DashboardCard
-              title="Players"
-              value={stats.players.toLocaleString()}
+      {loading ? (
+        <div className="grid grid-cols-1 gap-6 mt-10 md:grid-cols-3">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className="bg-slate-800/50 rounded-xl p-6 border border-slate-700/50 animate-pulse h-24"
             />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 gap-6 mt-10 md:grid-cols-3">
+          <DashboardCard
+            title="Players in Database"
+            value={stats?.players.toLocaleString() ?? "0"}
+          />
+          <DashboardCard
+            title="On Your Watchlist"
+            value={stats?.watchlist_count.toString() ?? "0"}
+            color="bg-blue-900/40"
+          />
+          <DashboardCard
+            title="Top Rated Player"
+            value={stats?.top_player?.player_name ?? "N/A"}
+            subtitle={
+              stats?.top_player
+                ? `Overall: ${stats.top_player.overall_rating}`
+                : undefined
+            }
+            color="bg-emerald-900/40"
+          />
+        </div>
+      )}
 
-            <DashboardCard
-              title="Similarity Engine"
-              value={stats.similarity_engine}
-              color="bg-green-800"
-            />
-
-            <DashboardCard
-              title="API Status"
-              value={stats.api_status}
-              color="bg-blue-800"
-            />
-          </div>
-
-          <div className="mt-10">
-            <SearchBox />
-          </div>
-        </main>
+      <div className="mt-10">
+        <h3 className="text-lg font-semibold text-white mb-4">
+          Quick Search
+        </h3>
+        <SearchBox />
       </div>
     </div>
   );
